@@ -32,9 +32,12 @@ const LoginScreen = ({ setUserType }) => {
     const checkLoginStatus = async () => {
         try {
             const userToken = await AsyncStorage.getItem('userToken');
+            const userRole = await AsyncStorage.getItem('userRole');
             if (userToken) {
                 // Verify token validity with your backend if needed
                 // navigation.replace('Home');
+                setUserType(userRole);
+
             }
         } catch (error) {
             console.error('Error checking login status:', error);
@@ -64,8 +67,11 @@ const LoginScreen = ({ setUserType }) => {
             });
 
             await AsyncStorage.setItem('userToken', response.data.token);
-            await AsyncStorage.setItem('userName', email.split('@')[0]);
-            setUserType("admin");            
+            await AsyncStorage.setItem('userName', response.data.user.username);
+            await AsyncStorage.setItem('userRole', response.data.user.role);
+            await AsyncStorage.setItem('userZone', response.data.user.zone);
+            let userRole = await AsyncStorage.getItem('userRole');
+            setUserType(userRole);
             // navigation.replace('Home');
         } catch (error) {
             Alert.alert(
@@ -76,6 +82,8 @@ const LoginScreen = ({ setUserType }) => {
             );
         }
     };
+
+
 
     const handleSendOtp = async () => {
         try {
@@ -108,7 +116,7 @@ const LoginScreen = ({ setUserType }) => {
             });
             await AsyncStorage.setItem('userToken', response.data.token);
             await AsyncStorage.setItem('userName', email.split('@')[0]);
-            navigation.replace('Home');
+            // navigation.replace('Home');
         } catch (error) {
             Alert.alert('Error', 'Invalid OTP');
         }

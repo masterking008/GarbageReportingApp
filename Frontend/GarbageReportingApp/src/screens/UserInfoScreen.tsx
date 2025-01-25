@@ -10,13 +10,17 @@ const UserInfoScreen = (setUserType) => {
     const handleLogout = async () => {
         try {
             // Remove the user data from AsyncStorage
+            // Remove the user data from AsyncStorage
             await AsyncStorage.removeItem('userToken');
             await AsyncStorage.removeItem('userName');
+            await AsyncStorage.removeItem('userRole');
+            await AsyncStorage.removeItem('userZone');  // Remove the user's zone
             console.log('User logged out successfully');
+
+            setUserType = "login" // This will now work as expected
 
             // Show a success alert
             Alert.alert('Success', 'You have been logged out');
-            setUserType = 'aa';  // This will now work as expected
             // Navigate to the Login screen after logging out
             // navigation.replace('Login');  // Replace with your login screen's name
 

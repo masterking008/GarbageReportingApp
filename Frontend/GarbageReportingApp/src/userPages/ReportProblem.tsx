@@ -1,75 +1,91 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { View, Text, Button, StyleSheet, TextInput, Image, KeyboardAvoidingView, Platform, ScrollView, Alert } from "react-native";
+import { 
+  View, 
+  Text, 
+  Button, 
+  StyleSheet, 
+  TextInput, 
+  Image, 
+  KeyboardAvoidingView, 
+  Platform, 
+  ScrollView, 
+  Alert 
+} from "react-native";
 import * as Location from "expo-location";
 import { Camera, CameraView } from "expo-camera";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import pointInPolygon from 'point-in-polygon';
+import pointInPolygon from "point-in-polygon";
 
 export default function ReportProblemScreen(username: string) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string>("");
   const [coordinates, setCoordinates] = useState<number[] | null>(null);
-  const cameraRef = useRef<CameraView | null>(null);
-
-  const ZONES_API_URL = 'http://192.168.0.200:8000/api/zones/';
-
   const [zones, setZones] = useState<Zone[]>([]);
   const [zone, setZone] = useState<string | null>(null);
+  const cameraRef = useRef<CameraView | null>(null);
 
+  const ZONES_API_URL = "http://192.168.0.200:8000/api/zones/";
 
+  // Fetch zones when the component mounts
   useEffect(() => {
     const fetchZones = async () => {
       try {
         const response = await axios.get(ZONES_API_URL);
         setZones(response.data);
       } catch (error) {
-        console.error('Error fetching zones:', error);
+        console.error("Error fetching zones:", error);
       }
     };
 
     fetchZones();
   }, []);
 
-
-  const determineZone = useCallback(async (latitude: number, longitude: number) => {
-    const iitbAreaPolygon = [
-      [19.12878878557306, 72.92002852900411],
-      [19.124933823043452, 72.91650895942533],
-      [19.123675868437882, 72.91170174243969],
-      [19.12347297163687, 72.90852554550274],
-      [19.135605245074277, 72.9024314258418],
-      [19.13852413379344, 72.9127363304844],
-      [19.14112095737054, 72.91526843967284],
-      [19.138402406686048, 72.91921681332263],
-    ];
-
-    let foundZone = null;
-
-    for (const zone of zones) {
-      const polygon = zone.coordinates.map((coord) => [coord.latitude, coord.longitude]);
-      if (pointInPolygon([latitude, longitude], polygon)) {
-        foundZone = zone.name;
-        break;
-      }
-    }
-
-    if (!foundZone) {
-      foundZone = pointInPolygon([latitude, longitude], iitbAreaPolygon)
-        ? 'Inside IITB Area'
-        : 'Outside IITB';
-    }
-
-    setZone(foundZone);
-  }, [zones]);
-
-  // console.log(zone);
-
-
-  // Request camera and location permissions
+  // Determine the user's zone when zones and coordinates are available
   useEffect(() => {
-    const getPermissions = async () => {
+    const determineUserZone = async () => {
+      if (zones.length > 0 && coordinates) {
+        const [latitude, longitude] = coordinates;
+
+        let foundZone = null;
+
+        for (const zone of zones) {
+          const polygon = zone.coordinates.map((coord) => [coord.latitude, coord.longitude]);
+          if (pointInPolygon([latitude, longitude], polygon)) {
+            foundZone = zone.name;
+            break;
+          }
+        }
+
+        if (!foundZone) {
+          const iitbAreaPolygon = [
+            [19.12878878557306, 72.92002852900411],
+            [19.124933823043452, 72.91650895942533],
+            [19.123675868437882, 72.91170174243969],
+            [19.12347297163687, 72.90852554550274],
+            [19.135605245074277, 72.9024314258418],
+            [19.13852413379344, 72.9127363304844],
+            [19.14112095737054, 72.91526843967284],
+            [19.138402406686048, 72.91921681332263],
+          ];
+
+          foundZone = pointInPolygon([latitude, longitude], iitbAreaPolygon)
+            ? "Inside IITB Area"
+            : "Outside IITB";
+        }
+
+        setZone(foundZone);
+      }
+    };
+
+    determineUserZone();
+  }, [zones, coordinates]);
+
+
+  // Request permissions and get location
+  useEffect(() => {
+    const getPermissionsAndLocation = async () => {
       const { status: cameraStatus } = await Camera.requestCameraPermissionsAsync();
       const { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
 
@@ -78,14 +94,12 @@ export default function ReportProblemScreen(username: string) {
       if (locationStatus === "granted") {
         const loc = await Location.getCurrentPositionAsync({});
         setCoordinates([loc.coords.latitude, loc.coords.longitude]);
-        determineZone(loc.coords.latitude, loc.coords.longitude);
-
       } else {
         Alert.alert("Location permission denied", "Cannot report without location.");
       }
     };
 
-    getPermissions();
+    getPermissionsAndLocation();
   }, []);
 
   const takePicture = async () => {
@@ -98,12 +112,12 @@ export default function ReportProblemScreen(username: string) {
   const retakePicture = () => {
     setPhoto(null);
   };
+
   const handleSubmit = async () => {
-    if (!photo || !feedback || !coordinates) {
+    if (!photo || !feedback || !coordinates || !zone) {
       Alert.alert("Error", "Please provide all required details before submitting.");
       return;
     }
-
 
     try {
       const formData = new FormData();
@@ -118,20 +132,14 @@ export default function ReportProblemScreen(username: string) {
       formData.append("coordinates", JSON.stringify(coordinates)); // Send coordinates as a JSON string
       formData.append("stage", "Reported"); // Initial stage is "Reported"
 
-      // console.log(formData);
+      const token = await AsyncStorage.getItem("userToken");
 
-
-      // Get JWT token from storage or context (replace `YOUR_TOKEN` with actual method to fetch token)
-      const token = await AsyncStorage.getItem('userToken');
-      // console.log("User Token:", token);
-
-      // Send data to the backend with Authorization header
       const response = await axios.post("http://192.168.0.200:8000/api/reports/", formData, {
         headers: {
-            "Content-Type": "multipart/form-data",
-            "Authorization": `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
-    });
+      });
 
       if (response.status === 201) {
         Alert.alert("Success", "Your report has been submitted!");
@@ -146,15 +154,21 @@ export default function ReportProblemScreen(username: string) {
     }
   };
 
-
   if (hasPermission === null) {
-    return <View style={styles.container}><Text>Requesting Permissions...</Text></View>;
+    return (
+      <View style={styles.container}>
+        <Text>Requesting Permissions...</Text>
+      </View>
+    );
   }
 
   if (hasPermission === false) {
-    return <View style={styles.container}><Text>No access to camera or location</Text></View>;
+    return (
+      <View style={styles.container}>
+        <Text>No access to camera or location</Text>
+      </View>
+    );
   }
-
 
   return (
     <KeyboardAvoidingView

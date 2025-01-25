@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Button,
+  Alert,
 } from "react-native";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
@@ -16,32 +17,43 @@ export default function AdminHomePage() {
   const [cases, setCases] = useState([]);
   const [filteredCases, setFilteredCases] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedStage, setSelectedStage] = useState(null); // Track selected stage filter
+  const [selectedStage, setSelectedStage] = useState(null);
+  const [userZone, setUserZone] = useState(null); // Store the user's zone
   const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchCases = async () => {
+    const fetchUserZoneAndCases = async () => {
       try {
-        const token = await AsyncStorage.getItem('userToken');  // Replace with a valid admin token
-        const response = await axios.get(
-          "http://192.168.0.200:8000/api/reports/",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`, // Include token for authentication
-            },
-          }
+        const token = await AsyncStorage.getItem("userToken"); // Replace with a valid admin token
+        const userZoneFromStorage = await AsyncStorage.getItem("userZone"); // Fetch the user's zone
+        setUserZone(userZoneFromStorage);
+
+        const response = await axios.get("http://192.168.0.200:8000/api/reports/", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Include token for authentication
+          },
+        });
+
+        const allCases = response.data;
+        console.log("All cases:", allCases);
+        const zoneFilteredCases = allCases.filter(
+          (caseItem) => caseItem.zone_name === userZoneFromStorage
         );
-        setCases(response.data);
-        setFilteredCases(response.data); // Initially show all cases
+
+        setCases(zoneFilteredCases);
+        setFilteredCases(zoneFilteredCases); // Initially show all cases in the user's zone
       } catch (error) {
         console.error("Error fetching cases:", error);
+        Alert.alert("Error", "Failed to fetch cases or user zone");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCases();
+    fetchUserZoneAndCases();
   }, []);
+
+
 
   const handleFilter = (stage) => {
     setSelectedStage(stage);
@@ -60,6 +72,7 @@ export default function AdminHomePage() {
     >
       <Text style={styles.ticketId}>Ticket ID: {item.ticket_id}</Text>
       <Text style={styles.stage}>Status: {item.stage}</Text>
+      <Text style={styles.zone}>Zone: {item.zone_name}</Text>
     </TouchableOpacity>
   );
 
@@ -79,14 +92,14 @@ export default function AdminHomePage() {
       {/* Filter Buttons */}
       <View style={styles.filterContainer}>
         <Button title="All" onPress={() => handleFilter("All")} />
-        <Button title="Reported" onPress={() => handleFilter("stage 1")} />
-        <Button title="Working" onPress={() => handleFilter("stage 2")} />
-        <Button title="Resolved" onPress={() => handleFilter("stage 3")} />
+        <Button title="Reported" onPress={() => handleFilter("Reported")} />
+        <Button title="Working" onPress={() => handleFilter("Work Started")} />
+        <Button title="Resolved" onPress={() => handleFilter("Resolved")} />
       </View>
 
       <FlatList
         data={filteredCases}
-        keyExtractor={(item) => item.ticket_id}
+        keyExtractor={(item) => item.ticket_id.toString()}
         renderItem={renderCase}
         contentContainerStyle={styles.list}
       />
@@ -116,6 +129,7 @@ const styles = StyleSheet.create({
   },
   ticketId: { fontSize: 16, fontWeight: "bold", color: "#007BFF", marginBottom: 4 },
   stage: { fontSize: 14, color: "#28a745", fontWeight: "bold" },
+  zone: { fontSize: 14, color: "#6c757d" },
   loader: { flex: 1, justifyContent: "center", alignItems: "center" },
   filterContainer: {
     flexDirection: "row",

@@ -11,13 +11,17 @@ const AdminInfoScreen = ({ setUserType }) => {  // Destructure setUserType from 
             // Remove the user data from AsyncStorage
             await AsyncStorage.removeItem('userToken');
             await AsyncStorage.removeItem('userName');
+            await AsyncStorage.removeItem('userRole');
+            await AsyncStorage.removeItem('userZone');  // Remove the user's zone
             console.log('User logged out successfully');
+
+            setUserType = "";  // This will now work as expected
 
             // Show a success alert
             Alert.alert('Success', 'You have been logged out');
 
             // Clear the user type
-            setUserType(null);  // This will now work as expected
+            setUserType = "login" // This will now work as expected
 
             // Navigate to the Login screen after logging out
             navigation.replace('Login');  // Replace with your login screen's name

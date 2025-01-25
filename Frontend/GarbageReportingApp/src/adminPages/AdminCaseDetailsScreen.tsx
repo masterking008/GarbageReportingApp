@@ -38,7 +38,7 @@ export default function AdminadminCaseDetailsScreen({ route }) {
       if (locationStatus === "granted") {
         const loc = await Location.getCurrentPositionAsync({});
         setCoordinates([loc.coords.latitude, loc.coords.longitude]);
-              
+
       } else {
         Alert.alert("Location permission denied", "Cannot report without location.");
       }
@@ -77,9 +77,9 @@ export default function AdminadminCaseDetailsScreen({ route }) {
           name: "resolved_image.jpg",
         }); // Add photo if available
       }
-      
+
       console.log(formData);
-      
+
       const response = await fetch("http://192.168.0.200:8000/api/update-case", {
         method: "POST",
         headers: {
@@ -88,12 +88,12 @@ export default function AdminadminCaseDetailsScreen({ route }) {
         },
         body: formData,
       });
-      
+
       if (response.ok) {
         const responseData = await response.json();
         alert("Case updated successfully!");
         console.log("Response data:", responseData);
-        
+
         // Reset state after submission
         setComment("");
         setPhoto(null);
@@ -109,8 +109,8 @@ export default function AdminadminCaseDetailsScreen({ route }) {
       setIsSubmitting(false); // Stop loading indicator
     }
   };
-  
-  
+
+
   const handleStartWork = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');  // Retrieve JWT token from storage
@@ -226,12 +226,14 @@ export default function AdminadminCaseDetailsScreen({ route }) {
             ? adminCaseDetails.coordinates.join(", ")
             : "N/A"}
         </Text>
-        <Text style={styles.detail}>
-          <Text style={styles.label}>Resolved Coordinates: </Text>
-          {adminCaseDetails.resolved_coordinates
-            ? adminCaseDetails.resolved_coordinates.join(", ")
-            : "N/A"}
-        </Text>
+
+        {adminCaseDetails.resolved_coordinates && (
+          <Text style={styles.detail}>
+            <Text style={styles.label}>Resolved Coordinates: </Text>
+            {adminCaseDetails.resolved_coordinates}
+          </Text>
+        )}
+
 
         <Text style={styles.detail}>
           <Text style={styles.label}>Reported At: </Text>

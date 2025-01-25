@@ -56,7 +56,7 @@ export default function AppNavigator() {
       ) : (
         <>
           {/* User/Admin Tabs */}
-          {userType === "user" ? (
+          {userType === "reporter" ? (
             <Stack.Screen
               name="UserTabs"
               options={{ headerShown: false }}
