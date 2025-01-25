@@ -1,0 +1,384 @@
+[
+  {
+    "name": "Main Gate",
+    "coordinates": [
+      {
+        "latitude": 19.126220084124192,
+        "longitude": 72.9157710327014
+      },
+      {
+        "latitude": 19.12686426989665,
+        "longitude": 72.91710146295293
+      },
+      {
+        "latitude": 19.126027335137156,
+        "longitude": 72.91764865604029
+      },
+      {
+        "latitude": 19.124921560287174,
+        "longitude": 72.91667229190406
+      },
+      {
+        "latitude": 19.12477446124024,
+        "longitude": 72.91622166230272
+      }
+    ],
+    "comment": "This is name \"Main Gate\"."
+  },
+  {
+    "name": "YPGate_KV",
+    "coordinates": [
+      {
+        "latitude": 19.129546154990113,
+        "longitude": 72.91712284425685
+      },
+      {
+        "latitude": 19.12959687734915,
+        "longitude": 72.91959594242607
+      },
+      {
+        "latitude": 19.128562138142843,
+        "longitude": 72.91967104735961
+      },
+      {
+        "latitude": 19.127775934902917,
+        "longitude": 72.91897900904328
+      },
+      {
+        "latitude": 19.128409970065857,
+        "longitude": 72.91773977763964
+      }
+    ],
+    "comment": "This is name \"YPGate_KV\"."
+  },
+  {
+    "name": "MG-H10 Road",
+    "coordinates": [
+      {
+        "latitude": 19.126411414271484,
+        "longitude": 72.91608216762661
+      },
+      {
+        "latitude": 19.126340401595193,
+        "longitude": 72.91592122848328
+      },
+      {
+        "latitude": 19.127371133272575,
+        "longitude": 72.91543243041559
+      },
+      {
+        "latitude": 19.127959519426845,
+        "longitude": 72.91525003271981
+      },
+      {
+        "latitude": 19.129643509596455,
+        "longitude": 72.91528222054848
+      },
+      {
+        "latitude": 19.129653654063546,
+        "longitude": 72.9155289939016
+      },
+      {
+        "latitude": 19.12794937485572,
+        "longitude": 72.91550753534914
+      }
+    ],
+    "comment": "This is name \"MG-H10 Road\"."
+  },
+  {
+    "name": "Guest House",
+    "coordinates": [
+      {
+        "latitude": 19.130959189282805,
+        "longitude": 72.91352280059503
+      },
+      {
+        "latitude": 19.130969333669086,
+        "longitude": 72.91488541867528
+      },
+      {
+        "latitude": 19.128453506791896,
+        "longitude": 72.9150034407137
+      },
+      {
+        "latitude": 19.12841292862506,
+        "longitude": 72.91366228118595
+      }
+    ],
+    "comment": "This is name \"Guest House\"."
+  },
+  {
+    "name": "Convo And SOM",
+    "coordinates": [
+      {
+        "latitude": 19.132689125499308,
+        "longitude": 72.91447762959051
+      },
+      {
+        "latitude": 19.132516672643632,
+        "longitude": 72.91487461281076
+      },
+      {
+        "latitude": 19.13205003460196,
+        "longitude": 72.91515357399253
+      },
+      {
+        "latitude": 19.13205003460196,
+        "longitude": 72.91614066740496
+      },
+      {
+        "latitude": 19.131350075067402,
+        "longitude": 72.91617285523365
+      },
+      {
+        "latitude": 19.131279064514104,
+        "longitude": 72.9137480388074
+      },
+      {
+        "latitude": 19.132344219607912,
+        "longitude": 72.91354418255919
+      }
+    ],
+    "comment": "This is name \"Convo And SOM\"."
+  },
+  {
+    "name": "LTPCSA",
+    "coordinates": [
+      {
+        "latitude": 19.132520516137866,
+        "longitude": 72.91554577380138
+      },
+      {
+        "latitude": 19.13253573257318,
+        "longitude": 72.91601249731706
+      },
+      {
+        "latitude": 19.132089383220947,
+        "longitude": 72.91605541442193
+      },
+      {
+        "latitude": 19.132043733787366,
+        "longitude": 72.91557259699194
+      }
+    ],
+    "comment": "This is name \"LTPCSA\"."
+  },
+  {
+    "name": "Central Library",
+    "coordinates": [
+      {
+        "latitude": 19.134371398294398,
+        "longitude": 72.91466601320597
+      },
+      {
+        "latitude": 19.134432263345182,
+        "longitude": 72.91545461500827
+      },
+      {
+        "latitude": 19.133641015935485,
+        "longitude": 72.91549753211318
+      },
+      {
+        "latitude": 19.13354971791347,
+        "longitude": 72.91467137784406
+      }
+    ],
+    "comment": "This is name \"Central Library\"."
+  },
+  {
+    "name": "Main Building",
+    "coordinates": [
+      {
+        "latitude": 19.13345209891155,
+        "longitude": 72.91463378136102
+      },
+      {
+        "latitude": 19.133492675840436,
+        "longitude": 72.91554576983991
+      },
+      {
+        "latitude": 19.133264430485784,
+        "longitude": 72.91598567016504
+      },
+      {
+        "latitude": 19.132721712486894,
+        "longitude": 72.91605541046046
+      },
+      {
+        "latitude": 19.132569548241865,
+        "longitude": 72.91547066490637
+      },
+      {
+        "latitude": 19.13215870407999,
+        "longitude": 72.91548139418258
+      },
+      {
+        "latitude": 19.132107982507655,
+        "longitude": 72.91517560981025
+      }
+    ],
+    "comment": "This is name \"Main Building\"."
+  },
+  {
+    "name": "VMCC-Rahul Bajaj",
+    "coordinates": [
+      {
+        "latitude": 19.13296057974995,
+        "longitude": 72.91713364924104
+      },
+      {
+        "latitude": 19.13220483037833,
+        "longitude": 72.91718193098404
+      },
+      {
+        "latitude": 19.132458437935554,
+        "longitude": 72.91899517866561
+      },
+      {
+        "latitude": 19.133127960015475,
+        "longitude": 72.9188986151796
+      }
+    ],
+    "comment": "This is name \"VMCC-Rahul Bajaj\"."
+  },
+  {
+    "name": "Old Sac",
+    "coordinates": [
+      {
+        "latitude": 19.13601732932475,
+        "longitude": 72.91471965606577
+      },
+      {
+        "latitude": 19.135956464858214,
+        "longitude": 72.91268645822164
+      },
+      {
+        "latitude": 19.134906549279176,
+        "longitude": 72.91283130345066
+      },
+      {
+        "latitude": 19.134470350505772,
+        "longitude": 72.914247567912
+      }
+    ],
+    "comment": "This is name \"Old Sac\"."
+  },
+  {
+    "name": "FCK",
+    "coordinates": [
+      {
+        "latitude": 19.130771105749528,
+        "longitude": 72.91555112237353
+      },
+      {
+        "latitude": 19.130771105749528,
+        "longitude": 72.91623243141368
+      },
+      {
+        "latitude": 19.130071140795096,
+        "longitude": 72.9161948789469
+      },
+      {
+        "latitude": 19.130076213015577,
+        "longitude": 72.91550284063057
+      }
+    ],
+    "comment": "This is name \"FCK\"."
+  },
+  {
+    "name": "LHC",
+    "coordinates": [
+      {
+        "latitude": 19.131039932081336,
+        "longitude": 72.91622170213745
+      },
+      {
+        "latitude": 19.130441412481105,
+        "longitude": 72.91624852532799
+      },
+      {
+        "latitude": 19.13051749560145,
+        "longitude": 72.91782572893268
+      },
+      {
+        "latitude": 19.131146448054057,
+        "longitude": 72.91778281182776
+      }
+    ],
+    "comment": "This is name \"LHC\"."
+  },
+  {
+    "name": "PPL",
+    "coordinates": [
+      {
+        "latitude": 19.130041180330164,
+        "longitude": 72.91558866273587
+      },
+      {
+        "latitude": 19.12947309054732,
+        "longitude": 72.91562621520264
+      },
+      {
+        "latitude": 19.12948323502486,
+        "longitude": 72.91699956255908
+      },
+      {
+        "latitude": 19.130081758097035,
+        "longitude": 72.91704784430209
+      }
+    ],
+    "comment": "This is name \"PPL\"."
+  },
+  {
+    "name": "Hostel Area",
+    "coordinates": [
+      {
+        "latitude": 19.134243003742142,
+        "longitude": 72.91052930435863
+      },
+      {
+        "latitude": 19.1343951664453,
+        "longitude": 72.90990700633775
+      },
+      {
+        "latitude": 19.136474709336333,
+        "longitude": 72.91055076291109
+      },
+      {
+        "latitude": 19.136281972315853,
+        "longitude": 72.91268588887931
+      },
+      {
+        "latitude": 19.1358660653473,
+        "longitude": 72.91264297177439
+      },
+      {
+        "latitude": 19.135967506167937,
+        "longitude": 72.91086191192151
+      }
+    ],
+    "comment": "This is name \"Hostel Area\"."
+  },
+  {
+    "name": "Gulmohar",
+    "coordinates": [
+      {
+        "latitude": 19.130253671928156,
+        "longitude": 72.91495030073169
+      },
+      {
+        "latitude": 19.130273960786734,
+        "longitude": 72.91534191931382
+      },
+      {
+        "latitude": 19.12952327135952,
+        "longitude": 72.91537410714245
+      },
+      {
+        "latitude": 19.129543560307827,
+        "longitude": 72.91495030073169
+      }
+    ],
+    "comment": "This is name \"Gulmohar\"."
+  }
+]
