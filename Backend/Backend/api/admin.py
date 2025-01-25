@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import GarbageReport , Zone
+from .models import GarbageReport , Zone , Profile , User
+
+
+# admin.site.register(Zone)
+admin.site.register(Zone,)
 
 # class GarbageReportAdmin(admin.ModelAdmin):
 #     # Fields to display in the list view
@@ -30,6 +34,7 @@ from .models import GarbageReport , Zone
 
 # admin.site.register(GarbageReport, GarbageReportAdmin)
 
-# admin.site.register(Zone)
-admin.site.register(Zone,)
+
 admin.site.register(GarbageReport,)
+admin.site.register(Profile,) 
+# admin.site.register(User,)

@@ -3,6 +3,23 @@ from django.contrib.auth.models import User
 import uuid
 from django.db.models import Max
 
+# models.py
+from django.contrib.auth.models import User
+from django.db import models
+
+class Profile(models.Model):
+    ROLE_CHOICES = (
+        ('admin', 'Admin'),
+        ('reporter', 'Reporter'),
+        ('resolver', 'Resolver'),
+    )
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='reporter')
+    zone = models.ForeignKey('Zone', on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username
 
 class Zone(models.Model):
     name = models.CharField(max_length=255, blank=False, null=False, default='IITB')  # Name is required

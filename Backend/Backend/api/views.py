@@ -88,7 +88,10 @@ def login(request):
                 'user': {
                     'id': user.id,
                     'username': user.username,
-                    'email': user.email
+                    'email': user.email,
+                    'role': user.profile.role,  # Include role in the response
+                    'zone': user.profile.zone.name
+
                 }
             }, status=status.HTTP_200_OK)
         else:

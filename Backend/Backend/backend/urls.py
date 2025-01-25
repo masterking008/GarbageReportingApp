@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from api.views import GarbageReportViewSet, send_otp, verify_otp, login , get_zones , start_work , update_case
+from api.views import GarbageReportViewSet, send_otp, verify_otp, login , get_zones , start_work , update_case 
 from django.conf import settings
 from django.conf.urls.static import static
 
