@@ -14,10 +14,10 @@ import {
     TouchableWithoutFeedback,
     Keyboard,
 } from 'react-native';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API } from '../api/axios';
 
-const LoginScreen = ({ setUserType }) => {
+const LoginScreen = ({ setUserType }: { setUserType: (userType: string | null) => void }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [otp, setOtp] = useState('');
@@ -35,9 +35,7 @@ const LoginScreen = ({ setUserType }) => {
             const userRole = await AsyncStorage.getItem('userRole');
             if (userToken) {
                 // Verify token validity with your backend if needed
-                // navigation.replace('Home');
                 setUserType(userRole);
-
             }
         } catch (error) {
             console.error('Error checking login status:', error);
@@ -61,7 +59,7 @@ const LoginScreen = ({ setUserType }) => {
                 return;
             }
 
-            const response = await axios.post('http://192.168.0.200:8000//api/login/', {
+            const response = await API.post('/api/login/', {
                 email,
                 password,
             });
@@ -72,7 +70,7 @@ const LoginScreen = ({ setUserType }) => {
             await AsyncStorage.setItem('userZone', response.data.user.zone);
             let userRole = await AsyncStorage.getItem('userRole');
             setUserType(userRole);
-            // navigation.replace('Home');
+          
         } catch (error) {
             Alert.alert(
                 'Error',
@@ -92,7 +90,7 @@ const LoginScreen = ({ setUserType }) => {
                 return;
             }
 
-            const response = await axios.post('http://192.168.137.1:8000/api/send-otp/', {
+            const response = await API.post('/api/send-otp/', {
                 email,
             });
             setShowOtpInput(true);
@@ -110,7 +108,7 @@ const LoginScreen = ({ setUserType }) => {
 
     const handleVerifyOtp = async () => {
         try {
-            const response = await axios.post('http://192.168.137.1:8000/api/verify-otp/', {
+            const response = await API.post('/api/verify-otp/', {
                 otp,
                 password,
             });
@@ -122,21 +120,7 @@ const LoginScreen = ({ setUserType }) => {
         }
     };
 
-    const CustomInput = ({ placeholder, value, onChangeText, secureTextEntry, keyboardType }) => (
-        <View style={styles.inputContainer}>
-            <TextInput
-                style={styles.input}
-                placeholder={placeholder}
-                placeholderTextColor="#666"
-                value={value}
-                onChangeText={onChangeText}
-                secureTextEntry={secureTextEntry}
-                keyboardType={keyboardType}
-                autoCapitalize="none"
-                autoCompleteType="off"
-            />
-        </View>
-    );
+
 
     const CustomButton = ({ title, onPress, secondary }) => (
         <TouchableOpacity

@@ -7,11 +7,15 @@ export default function CaseDetailsScreen({ route }) {
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>Case Details</Text>
-
+            <View style={styles.detailsContainer}>
+                <Text style={styles.detail}>
+                    <Text style={styles.label}>Status: </Text>{caseDetails.stage}
+                </Text>
+            </View>
             {caseDetails.resolved_image && (
                 <View>
                     <Text>Resolved Image</Text>
-                    <Image source={{ uri: caseDetails.image }} style={styles.image} />
+                    <Image source={{ uri: caseDetails.resolved_image }} style={styles.image} />
                 </View>
             )}
             {caseDetails.image && (
@@ -76,7 +80,7 @@ const styles = StyleSheet.create({
     },
     detail: {
         fontSize: 16,
-        marginBottom: 12,
+        // marginBottom: 12,
         lineHeight: 24,
         color: "#555",
     },
@@ -90,6 +94,6 @@ const styles = StyleSheet.create({
         aspectRatio: 0.75,
         borderRadius: 10,
         resizeMode: "cover",
-        marginBottom: 16,
+        marginVertical: 8,
     },
 });

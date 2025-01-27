@@ -1,38 +1,43 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import { 
-  View, 
-  Text, 
-  Button, 
-  StyleSheet, 
-  TextInput, 
-  Image, 
-  KeyboardAvoidingView, 
-  Platform, 
-  ScrollView, 
-  Alert 
+import React, { useState, useRef, useEffect } from "react";
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  TextInput,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Alert,
+  TouchableOpacity,
+  ActivityIndicator,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import * as Location from "expo-location";
 import { Camera, CameraView } from "expo-camera";
-import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import pointInPolygon from "point-in-polygon";
+import { API } from "../api/axios";
+import { useNavigation } from "@react-navigation/native";
 
-export default function ReportProblemScreen(username: string) {
+export default function ReportProblemScreen({ username }) {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string>("");
   const [coordinates, setCoordinates] = useState<number[] | null>(null);
   const [zones, setZones] = useState<Zone[]>([]);
   const [zone, setZone] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const cameraRef = useRef<CameraView | null>(null);
 
-  const ZONES_API_URL = "http://192.168.0.200:8000/api/zones/";
-
+  const navigation = useNavigation();
   // Fetch zones when the component mounts
   useEffect(() => {
     const fetchZones = async () => {
       try {
-        const response = await axios.get(ZONES_API_URL);
+        const response = await API.get("/api/zones/");
         setZones(response.data);
       } catch (error) {
         console.error("Error fetching zones:", error);
@@ -82,7 +87,6 @@ export default function ReportProblemScreen(username: string) {
     determineUserZone();
   }, [zones, coordinates]);
 
-
   // Request permissions and get location
   useEffect(() => {
     const getPermissionsAndLocation = async () => {
@@ -114,10 +118,17 @@ export default function ReportProblemScreen(username: string) {
   };
 
   const handleSubmit = async () => {
+    if (zones.length === 0) {
+      Alert.alert("Zones Data Loading", "Please wait while we load the zones data. Try again shortly.");
+      return;
+    }
+
     if (!photo || !feedback || !coordinates || !zone) {
       Alert.alert("Error", "Please provide all required details before submitting.");
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       const formData = new FormData();
@@ -134,7 +145,7 @@ export default function ReportProblemScreen(username: string) {
 
       const token = await AsyncStorage.getItem("userToken");
 
-      const response = await axios.post("http://192.168.0.200:8000/api/reports/", formData, {
+      const response = await API.post("/api/reports/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -145,14 +156,19 @@ export default function ReportProblemScreen(username: string) {
         Alert.alert("Success", "Your report has been submitted!");
         setPhoto(null);
         setFeedback("");
+        navigation.navigate("MyCases" as never); // Navigate to the MyCasesScreen
       } else {
         throw new Error("Failed to submit");
       }
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "Something went wrong while submitting your report.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+
 
   if (hasPermission === null) {
     return (
@@ -171,48 +187,148 @@ export default function ReportProblemScreen(username: string) {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    <KeyboardAvoidingView style={styles.container} behavior="position" enabled keyboardVerticalOffset={80}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <Text style={styles.header}>Report a Problem</Text>
 
-        {photo ? (
-          <View style={styles.cameraPreview}>
-            <Image source={{ uri: photo }} style={styles.previewImage} />
-            <Button title="Retake Photo" onPress={retakePicture} color="#FF6347" />
-          </View>
-        ) : (
-          <CameraView style={styles.camera} ref={cameraRef}>
-            <View style={styles.cameraControls}>
-              <Button title="Take Photo" onPress={takePicture} color="#4682B4" />
-            </View>
-          </CameraView>
-        )}
+      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <Text style={styles.header}>Report a Problem</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Provide feedback..."
-          value={feedback}
-          onChangeText={setFeedback}
-          multiline
-          numberOfLines={4}
-          placeholderTextColor="#8a8a8a"
-        />
+          {/* Camera */}
+          {photo ? (
+            <>
+              <View style={styles.cameraPreview}>
+                <Image source={{ uri: photo }} style={styles.previewImage} />
+              </View>
+              <TouchableOpacity
+                style={styles.captureButton}
+                onPress={retakePicture}
+              >
+                <Text style={styles.captureButtonText}>Retake Photo</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <CameraView style={styles.camera} ref={cameraRef} />
+              <TouchableOpacity
+                style={styles.captureButton}
+                onPress={takePicture}
+              >
+                <Text style={styles.captureButtonText}>Capture Photo</Text>
+              </TouchableOpacity>
+            </>
+          )}
 
-        <Button title="Submit" onPress={handleSubmit} color="#32CD32" />
-      </ScrollView>
+          {/* Comment Input */}
+          <TextInput
+            style={styles.input}
+            placeholder="Provide feedback..."
+            value={feedback}
+            onChangeText={setFeedback}
+            multiline
+            numberOfLines={4}
+            placeholderTextColor="#8a8a8a"
+          />
+
+          {/* Submit Button */}
+          <TouchableOpacity
+            style={[
+              styles.submitButton,
+              zones.length === 0 || isSubmitting ? { backgroundColor: "#ccc" } : {},
+            ]}
+            onPress={handleSubmit}
+            disabled={zones.length === 0 || isSubmitting}
+          >
+            {isSubmitting || zones.length === 0 ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.submitButtonText}>Submit</Text>
+            )}
+          </TouchableOpacity>
+
+        </ScrollView>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "#f5f5f5" },
-  scrollContainer: { flexGrow: 1, justifyContent: "center", alignItems: "center", paddingBottom: 20 },
-  header: { fontSize: 28, fontWeight: "bold", color: "#333", marginBottom: 20 },
-  camera: { width: "100%", height: 300, backgroundColor: "#000", borderRadius: 15, overflow: "hidden", marginBottom: 20 },
-  cameraPreview: { width: "100%", height: 300, justifyContent: "center", alignItems: "center", borderRadius: 15, borderWidth: 2, borderColor: "#ddd", marginBottom: 20 },
-  previewImage: { width: "100%", height: "100%", borderRadius: 10 },
-  input: { width: "100%", height: 120, borderColor: "#ddd", borderWidth: 1, borderRadius: 8, padding: 15, marginTop: 10, marginBottom: 20, fontSize: 16, backgroundColor: "#fff", color: "#333", textAlignVertical: "top" },
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+    flexDirection: 'column',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    alignItems: "center",
+    paddingBottom: 20,
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: "700",
+    textAlign: "center",
+    color: "#333",
+    marginBottom: 12,
+  },
+  camera: {
+    width: "80%",
+    aspectRatio: 3 / 4,
+    borderRadius: 8,
+    overflow: "hidden",
+    marginBottom: 16
+  },
+
+  cameraPreview: {
+    width: "80%",
+    aspectRatio: 3 / 4,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 13,
+    borderWidth: 3,
+    borderColor: "#28a745",
+    marginBottom: 20,
+  },
+  previewImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 10,
+  },
+  captureButton: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  captureButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  input: {
+    width: "100%",
+    height: 120,
+    borderColor: "#ddd",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 15,
+    marginTop: 10,
+    marginBottom: 20,
+    fontSize: 16,
+    backgroundColor: "#fff",
+    color: "#333",
+    textAlignVertical: "top",
+  },
+  submitButton: {
+    width: "100%",
+    backgroundColor: "#28a745",
+    padding: 14,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  submitButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
 });

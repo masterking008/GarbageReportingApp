@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -6,69 +6,83 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
-  Button,
   Alert,
+  RefreshControl, // Import RefreshControl
 } from "react-native";
-import axios from "axios";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API } from "../api/axios";
 
 export default function AdminHomePage() {
   const [cases, setCases] = useState([]);
   const [filteredCases, setFilteredCases] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedStage, setSelectedStage] = useState(null);
-  const [userZone, setUserZone] = useState(null); // Store the user's zone
+  const [selectedStage, setSelectedStage] = useState("All");
+  const [userZone, setUserZone] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false); // New state for refresh
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const fetchUserZoneAndCases = async () => {
-      try {
-        const token = await AsyncStorage.getItem("userToken"); // Replace with a valid admin token
-        const userZoneFromStorage = await AsyncStorage.getItem("userZone"); // Fetch the user's zone
-        setUserZone(userZoneFromStorage);
+  // Function to fetch cases and user zone
+  const fetchUserZoneAndCases = async () => {
+    try {
+      setLoading(true); // Show loader while fetching
+      const token = await AsyncStorage.getItem("userToken");
+      const userZoneFromStorage = await AsyncStorage.getItem("userZone");
+      setUserZone(userZoneFromStorage);
 
-        const response = await axios.get("http://192.168.0.200:8000/api/reports/", {
-          headers: {
-            Authorization: `Bearer ${token}`, // Include token for authentication
-          },
-        });
+      const response = await API.get("api/reports/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        const allCases = response.data;
-        console.log("All cases:", allCases);
-        const zoneFilteredCases = allCases.filter(
-          (caseItem) => caseItem.zone_name === userZoneFromStorage
-        );
+      const allCases = response.data;
+      const zoneFilteredCases = allCases.filter(
+        (caseItem) => caseItem.zone_name === userZoneFromStorage
+      );
 
-        setCases(zoneFilteredCases);
-        setFilteredCases(zoneFilteredCases); // Initially show all cases in the user's zone
-      } catch (error) {
-        console.error("Error fetching cases:", error);
-        Alert.alert("Error", "Failed to fetch cases or user zone");
-      } finally {
-        setLoading(false);
-      }
-    };
+      setCases(zoneFilteredCases);
+      setFilteredCases(zoneFilteredCases); // Show all cases initially
+    } catch (error) {
+      console.error("Error fetching cases:", error);
+      Alert.alert("Error", "Failed to fetch cases or user zone");
+    } finally {
+      setLoading(false); // Hide loader when done
+    }
+  };
 
-    fetchUserZoneAndCases();
-  }, []);
+  // Trigger fetchUserZoneAndCases whenever the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserZoneAndCases();
+    }, [])
+  );
 
-
-
+  // Handle filtering by status
   const handleFilter = (stage) => {
     setSelectedStage(stage);
     if (stage === "All") {
-      setFilteredCases(cases); // Show all cases
+      setFilteredCases(cases);
     } else {
       const filtered = cases.filter((caseItem) => caseItem.stage === stage);
       setFilteredCases(filtered);
     }
   };
 
+  // Handle pull-to-refresh
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await fetchUserZoneAndCases(); // Fetch new data
+    setIsRefreshing(false); // End refreshing
+  };
+
+  // Render each case item
   const renderCase = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate("AdminCaseDetails", { adminCaseDetails: item })}
+      onPress={() =>
+        navigation.navigate("AdminCaseDetails", { adminCaseDetails: item })
+      }
     >
       <Text style={styles.ticketId}>Ticket ID: {item.ticket_id}</Text>
       <Text style={styles.stage}>Status: {item.stage}</Text>
@@ -91,10 +105,17 @@ export default function AdminHomePage() {
 
       {/* Filter Buttons */}
       <View style={styles.filterContainer}>
-        <Button title="All" onPress={() => handleFilter("All")} />
-        <Button title="Reported" onPress={() => handleFilter("Reported")} />
-        <Button title="Working" onPress={() => handleFilter("Work Started")} />
-        <Button title="Resolved" onPress={() => handleFilter("Resolved")} />
+        {["All", "Reported", "Work Started", "Resolved"].map((stage) => (
+          <TouchableOpacity
+            key={stage}
+            style={[styles.filterButton, selectedStage === stage && styles.selectedFilterButton]}
+            onPress={() => handleFilter(stage)}
+          >
+            <Text style={[styles.filterButtonText, selectedStage === stage && styles.selectedFilterButtonText]}>
+              {stage}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       <FlatList
@@ -102,6 +123,13 @@ export default function AdminHomePage() {
         keyExtractor={(item) => item.ticket_id.toString()}
         renderItem={renderCase}
         contentContainerStyle={styles.list}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing} // Indicate if refreshing
+            onRefresh={handleRefresh} // Handle refresh action
+            colors={["#007BFF"]} // Set color for refresh indicator
+          />
+        }
       />
     </View>
   );
@@ -135,5 +163,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     marginBottom: 16,
+  },
+  filterButton: {
+    backgroundColor: "#e0e0e0",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+  },
+  selectedFilterButton: {
+    backgroundColor: "#007BFF",
+  },
+  filterButtonText: {
+    color: "#000",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  selectedFilterButtonText: {
+    color: "#fff",
   },
 });

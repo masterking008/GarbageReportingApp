@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // For JWT token storage
 import { useNavigation } from '@react-navigation/native';
+import { API } from '../api/axios';
 
 const MyCasesScreen = () => {
   const [reports, setReports] = useState([]);
@@ -24,7 +24,7 @@ const MyCasesScreen = () => {
         const decodedToken = decodeJWT(token); // Decode the JWT token to get user info
         const userId = decodedToken.user_id; // Assuming user_id is included in the JWT token
 
-        const response = await axios.get('http://192.168.0.200:8000/api/reports/', {
+        const response = await API.get('/api/reports/', {
           headers: {
             Authorization: `Bearer ${token}`,  // Send token in the Authorization header
           },
